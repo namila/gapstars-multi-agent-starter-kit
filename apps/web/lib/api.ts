@@ -1,18 +1,19 @@
 import { createParser } from "eventsource-parser"
 
-import { API_URL, type StreamChunk } from "@/lib/types"
+import { API_URL, type LLMProvider, type StreamChunk } from "@/lib/types"
 
 /**
  * Sends a message to the FastAPI SSE streaming endpoint and yields parsed chunks.
  */
 export async function* streamChat(
   message: string,
-  threadId: string
+  threadId: string,
+  provider?: LLMProvider
 ): AsyncGenerator<StreamChunk, void, unknown> {
   const response = await fetch(`${API_URL}/api/chat/stream`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message, thread_id: threadId }),
+    body: JSON.stringify({ message, thread_id: threadId, provider: provider ?? null }),
   })
 
   if (!response.ok) {

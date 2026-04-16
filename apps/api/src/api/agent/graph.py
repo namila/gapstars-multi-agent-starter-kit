@@ -2,32 +2,70 @@ from __future__ import annotations
 
 from typing import Literal
 
-from langchain_openai import ChatOpenAI
+from langchain_core.language_models import BaseChatModel
 from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.prebuilt import ToolNode
 
 from api.agent.state import AgentState
 from api.agent.tools import TOOLS
-from api.config import settings
+from api.config import LLMProvider, settings
 
 
-def build_graph(checkpointer: BaseCheckpointSaver | None = None):
+def build_llm(provider: LLMProvider | None = None) -> BaseChatModel:
+    """Instantiate the appropriate chat model for *provider*.
+
+    Falls back to ``settings.llm_provider`` when *provider* is ``None``.
+    Raises ``ValueError`` with a user-friendly message when the required API
+    key for the requested provider is not configured.
+    """
+    resolved: LLMProvider = provider or settings.llm_provider
+
+    if resolved == "openai":
+        if not settings.openai_api_key:
+            raise ValueError(
+                "OPENAI_API_KEY is not configured. "
+                "Set it in your .env file to use the OpenAI provider."
+            )
+        from langchain_openai import ChatOpenAI
+
+        return ChatOpenAI(
+            model=settings.openai_model,
+            api_key=settings.openai_api_key,
+            streaming=True,
+        )
+
+    if resolved == "mistral":
+        if not settings.mistral_api_key:
+            raise ValueError(
+                "MISTRAL_API_KEY is not configured. "
+                "Set it in your .env file to use the Mistral provider."
+            )
+        from langchain_mistralai import ChatMistralAI
+
+        return ChatMistralAI(
+            model=settings.mistral_model,
+            api_key=settings.mistral_api_key,  # type: ignore[arg-type]
+            streaming=True,
+        )
+
+    raise ValueError(f"Unknown LLM provider: {resolved!r}")
+
+
+def build_graph(
+    checkpointer: BaseCheckpointSaver | None = None,
+    provider: LLMProvider | None = None,
+):
     """Build and compile the ReAct-style LangGraph agent graph.
 
     Args:
         checkpointer: Optional checkpoint saver for persistent conversation state.
+        provider: LLM provider to use. Defaults to ``settings.llm_provider``.
 
     Returns:
         A compiled LangGraph ``CompiledGraph`` instance.
     """
-    llm = ChatOpenAI(
-        model=settings.openai_model,
-        api_key=settings.openai_api_key,
-        streaming=True,
-    )
-
-    # Bind tools to the model so it knows which tools are available
+    llm = build_llm(provider)
     llm_with_tools = llm.bind_tools(TOOLS)
 
     # ── Nodes ────────────────────────────────────────────────────────────────

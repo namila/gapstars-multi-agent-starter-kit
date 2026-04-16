@@ -6,8 +6,9 @@ import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import { type ChatMessage } from "@/lib/types"
+import { type ChatMessage, PROVIDER_LABELS } from "@/lib/types"
 
 interface MessageListProps {
   messages: ChatMessage[]
@@ -73,21 +74,28 @@ function MessageBubble({ message }: { message: ChatMessage }) {
         {isUser ? <User className="size-4" /> : <Bot className="size-4" />}
       </div>
 
-      {/* Bubble */}
-      <div
-        className={cn(
-          "max-w-[80%] rounded-2xl px-4 py-2.5 text-sm",
-          isUser
-            ? "rounded-tr-sm bg-primary text-primary-foreground"
-            : "rounded-tl-sm bg-muted text-foreground"
-        )}
-      >
-        {!message.content ? (
-          <span className="italic opacity-60">Thinking…</span>
-        ) : isUser ? (
-          <span className="whitespace-pre-wrap">{message.content}</span>
-        ) : (
-          <MarkdownContent content={message.content} />
+      {/* Bubble + provider badge */}
+      <div className={cn("flex max-w-[80%] flex-col gap-1", isUser && "items-end")}>
+        <div
+          className={cn(
+            "rounded-2xl px-4 py-2.5 text-sm",
+            isUser
+              ? "rounded-tr-sm bg-primary text-primary-foreground"
+              : "rounded-tl-sm bg-muted text-foreground"
+          )}
+        >
+          {!message.content ? (
+            <span className="italic opacity-60">Thinking…</span>
+          ) : isUser ? (
+            <span className="whitespace-pre-wrap">{message.content}</span>
+          ) : (
+            <MarkdownContent content={message.content} />
+          )}
+        </div>
+        {!isUser && message.provider && (
+          <Badge variant="secondary" className="self-start px-1.5 py-0 text-[10px] font-normal opacity-60">
+            {PROVIDER_LABELS[message.provider]}
+          </Badge>
         )}
       </div>
     </div>

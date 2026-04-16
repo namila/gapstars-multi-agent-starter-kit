@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 from functools import lru_cache
+from typing import Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+LLMProvider = Literal["openai", "mistral"]
 
 
 class Settings(BaseSettings):
@@ -13,17 +16,25 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    # LLM
+    # ── LLM provider ──────────────────────────────────────────────────────────
+    llm_provider: LLMProvider = "openai"
+    """Default provider used when no per-request override is supplied."""
+
+    # ── OpenAI ────────────────────────────────────────────────────────────────
     openai_api_key: str = ""
     openai_model: str = "gpt-4o-mini"
 
-    # Postgres
+    # ── Mistral ───────────────────────────────────────────────────────────────
+    mistral_api_key: str = ""
+    mistral_model: str = "mistral-small-latest"
+
+    # ── Postgres ──────────────────────────────────────────────────────────────
     database_url: str = "postgresql://postgres:postgres@localhost:5432/multiagent"
 
-    # Redis
+    # ── Redis ─────────────────────────────────────────────────────────────────
     redis_url: str = "redis://localhost:6379"
 
-    # API server
+    # ── API server ────────────────────────────────────────────────────────────
     api_host: str = "0.0.0.0"
     api_port: int = 8000
     cors_origins: str = "http://localhost:3000"

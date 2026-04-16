@@ -1,15 +1,25 @@
 "use client"
 
+import { useState } from "react"
 import { RotateCcw } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { MessageInput } from "@/components/chat/message-input"
 import { MessageList } from "@/components/chat/message-list"
+import { ProviderSelector } from "@/components/chat/provider-selector"
 import { useChat } from "@/hooks/use-chat"
+import { type LLMProvider } from "@/lib/types"
 
 export function ChatInterface() {
-  const { messages, isStreaming, error, threadId, sendMessage, resetThread } = useChat()
+  const [provider, setProvider] = useState<LLMProvider>("openai")
+  const { messages, isStreaming, error, threadId, sendMessage, resetThread } = useChat(provider)
+
+  function handleProviderChange(next: LLMProvider) {
+    setProvider(next)
+    // Start a fresh thread when switching providers to avoid cross-provider confusion
+    resetThread()
+  }
 
   return (
     <div className="flex h-svh flex-col">
@@ -21,15 +31,23 @@ export function ChatInterface() {
             {threadId.slice(0, 8)}
           </Badge>
         </div>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          onClick={resetThread}
-          title="New conversation"
-          aria-label="New conversation"
-        >
-          <RotateCcw className="size-4" />
-        </Button>
+
+        <div className="flex items-center gap-2">
+          <ProviderSelector
+            value={provider}
+            onChange={handleProviderChange}
+            disabled={isStreaming}
+          />
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={resetThread}
+            title="New conversation"
+            aria-label="New conversation"
+          >
+            <RotateCcw className="size-4" />
+          </Button>
+        </div>
       </header>
 
       {/* Messages */}

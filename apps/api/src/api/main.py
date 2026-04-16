@@ -7,7 +7,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.agent.checkpointer import create_checkpointer
-from api.agent.graph import build_graph
 from api.config import settings
 from api.routers import agent_router
 
@@ -16,13 +15,14 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Startup: build the agent graph with a persistent checkpointer.
+    """Startup: initialise the Postgres checkpointer shared across all providers.
     Shutdown: close the connection pool.
     """
     logger.info("Starting up — initialising Postgres checkpointer…")
     checkpointer, pool = await create_checkpointer()
-    app.state.graph = build_graph(checkpointer=checkpointer)
-    logger.info("Agent graph ready")
+    # Store the checkpointer so each request can build the right provider graph
+    app.state.checkpointer = checkpointer
+    logger.info("Checkpointer ready (provider graph built per-request)")
 
     yield
 
@@ -54,6 +54,15 @@ def create_app() -> FastAPI:
     @app.get("/api/health", tags=["health"])
     async def health():
         return {"status": "ok"}
+
+    # ── Providers ─────────────────────────────────────────────────────────────
+    @app.get("/api/providers", tags=["providers"])
+    async def providers():
+        """Return the list of supported LLM providers and the current default."""
+        return {
+            "providers": ["openai", "mistral"],
+            "default": settings.llm_provider,
+        }
 
     return app
 
