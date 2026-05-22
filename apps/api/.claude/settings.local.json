@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uv run ruff check:*)",
+      "Bash(bun typecheck:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(npx tsc:*)",
+      "Bash(find:*)",
+      "Bash(uv run python:*)",
+      "Bash(python -m py_compile:*)",
+      "Bash(grep:*)",
+      "Bash(uv run pytest:*)"
+    ]
+  }
+}

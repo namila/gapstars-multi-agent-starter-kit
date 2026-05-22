@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from api.agent.checkpointer import create_checkpointer
 from api.config import settings
-from api.routers import agent_router
+from api.routers import agent_router, interview_router
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +49,7 @@ def create_app() -> FastAPI:
 
     # ── Routers ───────────────────────────────────────────────────────────────
     app.include_router(agent_router)
+    app.include_router(interview_router)
 
     # ── Health ────────────────────────────────────────────────────────────────
     @app.get("/api/health", tags=["health"])
