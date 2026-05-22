@@ -1,13 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { Clock, FileText, ListChecks, Target, User, Briefcase } from "lucide-react"
+import { Clock, FileText, ListChecks, Target, User } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { StructureView } from "@/components/interview/results/structure-view"
 import { QuestionsView } from "@/components/interview/results/questions-view"
 import { RubricView } from "@/components/interview/results/rubric-view"
+import { ExportActions } from "@/components/interview/results/export-actions"
 import type { InterviewPackage } from "@/lib/interview-types"
 import { INTERVIEW_TYPE_LABELS } from "@/lib/interview-types"
 import { cn } from "@/lib/utils"
@@ -41,6 +41,7 @@ export function ResultsContainer({ package: pkg }: ResultsContainerProps) {
               <Badge variant="outline">{pkg.total_duration_minutes} minutes</Badge>
             </div>
           </div>
+          <ExportActions package={pkg} />
         </div>
 
         {/* Quick stats */}

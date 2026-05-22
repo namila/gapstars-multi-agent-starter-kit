@@ -135,7 +135,7 @@ export function QuestionsView({ questions }: QuestionsViewProps) {
                       )}
                       <div className="flex-1 min-w-0">
                         <p className="text-sm">{q.question}</p>
-                        <div className="flex items-center gap-2 mt-2">
+                        <div className="flex flex-wrap items-center gap-2 mt-2">
                           <Badge
                             variant={
                               q.difficulty === "hard"
@@ -152,7 +152,7 @@ export function QuestionsView({ questions }: QuestionsViewProps) {
                             ~{q.time_minutes} min
                           </span>
                           {q.related_gap && (
-                            <Badge variant="outline" className="text-xs">
+                            <Badge variant="outline" className="text-xs max-w-full truncate">
                               Probes: {q.related_gap}
                             </Badge>
                           )}
