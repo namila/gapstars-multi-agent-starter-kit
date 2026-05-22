@@ -54,7 +54,7 @@ export function useInterviewGenerator(): UseInterviewGeneratorReturn {
   const [jobDescription, setJobDescription] = useState("")
   const [resumeFile, setResumeFile] = useState<File | null>(null)
   const [interviewType, setInterviewType] = useState<InterviewType>("technical")
-  const [provider, setProvider] = useState<LLMProvider>("openai")
+  const [provider, setProvider] = useState<LLMProvider>("mistral")
 
   // Generation state
   const [isGenerating, setIsGenerating] = useState(false)

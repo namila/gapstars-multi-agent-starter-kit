@@ -12,7 +12,7 @@ import { useChat } from "@/hooks/use-chat"
 import { type LLMProvider } from "@/lib/types"
 
 export function ChatInterface() {
-  const [provider, setProvider] = useState<LLMProvider>("openai")
+  const [provider, setProvider] = useState<LLMProvider>("mistral")
   const { messages, isStreaming, error, threadId, sendMessage, resetThread } = useChat(provider)
 
   function handleProviderChange(next: LLMProvider) {
