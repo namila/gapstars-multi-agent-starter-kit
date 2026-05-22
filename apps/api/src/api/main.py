@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import logging
 from contextlib import asynccontextmanager
 
@@ -11,6 +12,10 @@ from api.config import settings
 from api.routers import agent_router
 
 logger = logging.getLogger(__name__)
+
+# Psycopg async is not compatible with ProactorEventLoop on Windows.
+if hasattr(asyncio, "WindowsSelectorEventLoopPolicy"):
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
 @asynccontextmanager

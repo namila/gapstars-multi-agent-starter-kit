@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import typer
 import uvicorn
 
@@ -12,6 +13,12 @@ app = typer.Typer(
 )
 
 
+def _configure_windows_event_loop() -> None:
+    """Use SelectorEventLoop on Windows for psycopg async compatibility."""
+    if hasattr(asyncio, "WindowsSelectorEventLoopPolicy"):
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
+
 @app.command()
 def serve(
     host: str = typer.Option(settings.api_host, "--host", "-h", help="Bind host"),
@@ -19,6 +26,7 @@ def serve(
     workers: int = typer.Option(1, "--workers", "-w", help="Number of worker processes"),
 ):
     """Start the production API server."""
+    _configure_windows_event_loop()
     uvicorn.run(
         "api.main:app",
         host=host,
@@ -34,6 +42,7 @@ def dev(
     port: int = typer.Option(settings.api_port, "--port", "-p", help="Bind port"),
 ):
     """Start the development API server with hot-reload."""
+    _configure_windows_event_loop()
     uvicorn.run(
         "api.main:app",
         host=host,
